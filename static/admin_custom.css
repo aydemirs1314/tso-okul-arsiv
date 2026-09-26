@@ -1,0 +1,232 @@
+/* Admin Paneli İçin Kapsamlı Beyaz Yazı ve Koyu Tema */
+
+/* Genel Gövde ve Alanlar */
+html, body, 
+.content-wrapper, 
+.main-footer,
+.main-header,
+.navbar,
+.wrapper,
+.content {
+    background-color: #0d1117 !important;
+    color: #ffffff !important;
+}
+
+/* Tüm Başlıklar, Paragraflar, Yazılar ve Etiketler */
+h1, h2, h3, h4, h5, h6,
+p, span, label, small, strong, b, div,
+.content-header h1,
+.content-header small,
+.breadcrumb-item,
+.breadcrumb-item a,
+.breadcrumb-item.active {
+    color: #ffffff !important;
+}
+
+/* Tüm Linkler - Kart içindeki mavi yazıları tamamen beyaz yap */
+a, 
+a:link, 
+a:visited,
+.card a, 
+.table a, 
+.table th a, 
+.table td a,
+.model-name a,
+.app-label a,
+.card-body a {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+a:hover, 
+.table a:hover,
+.card a:hover {
+    color: #79c0ff !important;
+    text-decoration: underline !important;
+}
+
+/* Üst Menü (Navbar) */
+.main-header .navbar-nav .nav-link,
+.main-header .nav-link,
+.main-header a,
+.main-header span {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Yan Menü (Sidebar) */
+.main-sidebar, 
+.sidebar-dark-primary,
+.sidebar {
+    background-color: #161b22 !important;
+    border-right: 1px solid #30363d !important;
+}
+
+.brand-link,
+.brand-link .brand-text,
+.brand-link i {
+    background-color: #161b22 !important;
+    border-bottom: 1px solid #30363d !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.user-panel .info a,
+.user-panel .info span {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.nav-sidebar .nav-header {
+    color: #c9d1d9 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+.nav-sidebar .nav-link {
+    color: #ffffff !important;
+}
+
+.nav-sidebar .nav-link p,
+.nav-sidebar .nav-link i {
+    color: #ffffff !important;
+}
+
+.nav-sidebar .nav-link:hover {
+    background-color: #21262d !important;
+    color: #79c0ff !important;
+}
+
+.nav-sidebar .nav-link:hover p,
+.nav-sidebar .nav-link:hover i {
+    color: #79c0ff !important;
+}
+
+.nav-sidebar .nav-link.active {
+    background-color: #238636 !important;
+    color: #ffffff !important;
+}
+
+.nav-sidebar .nav-link.active p,
+.nav-sidebar .nav-link.active i {
+    color: #ffffff !important;
+}
+
+/* Kartlar ve Paneller */
+.card {
+    background-color: #161b22 !important;
+    border: 1px solid #30363d !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+}
+
+.card-header {
+    background-color: #21262d !important;
+    border-bottom: 1px solid #30363d !important;
+    color: #ffffff !important;
+}
+
+.card-title,
+.card-header h3,
+.card-header h4 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.card-body,
+.card-body p,
+.card-body span,
+.card-body li {
+    color: #ffffff !important;
+}
+
+/* Tablolar ve Model Satırları */
+.table {
+    color: #ffffff !important;
+    background-color: #161b22 !important;
+}
+
+.table thead th {
+    background-color: #21262d !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #30363d !important;
+    font-weight: 700 !important;
+}
+
+.table tbody tr {
+    background-color: #161b22 !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid #21262d !important;
+}
+
+.table tbody tr:hover {
+    background-color: #21262d !important;
+}
+
+.table td, .table th {
+    color: #ffffff !important;
+    border-top: 1px solid #30363d !important;
+}
+
+/* Form Alanları */
+.form-control, 
+.custom-select,
+select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="file"] {
+    background-color: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    color: #ffffff !important;
+}
+
+.form-control:focus {
+    border-color: #58a6ff !important;
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.2) !important;
+    color: #ffffff !important;
+}
+
+/* Butonlar */
+.btn-primary, .btn-success, .badge-success, .bg-success {
+    background-color: #238636 !important;
+    border-color: #2ea043 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.btn-info, .badge-info, .bg-info {
+    background-color: #1f6feb !important;
+    border-color: #388bfd !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.btn-danger, .badge-danger, .bg-danger {
+    background-color: #da3633 !important;
+    border-color: #f85149 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Son Eylemler ve Liste Elemanları */
+.timeline-item, 
+.timeline-header,
+.timeline-body,
+.timeline-footer {
+    background-color: #161b22 !important;
+    color: #ffffff !important;
+    border-color: #30363d !important;
+}
+
+/* Alt Bilgi (Footer) */
+.main-footer,
+.main-footer a,
+.main-footer strong {
+    background-color: #0d1117 !important;
+    border-top: 1px solid #30363d !important;
+    color: #c9d1d9 !important;
+}

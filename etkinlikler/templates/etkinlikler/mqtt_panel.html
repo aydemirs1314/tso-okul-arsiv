@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block nav_mqtt %}active{% endblock %}
+{% block title %}IoT & MQTT Kontrol Merkezi — TSO Arşiv{% endblock %}
+
+{% block content %}
+<div class="page-container fade-in">
+    <!-- Başlık -->
+    <div style="margin-bottom:24px;">
+        <h2 style="font-size:24px; font-weight:800; color:#f0f6fc; margin:0;">
+            <i class="fa-solid fa-microchip me-2" style="color:var(--accent);"></i> IoT & MQTT Kontrol Merkezi
+        </h2>
+        <p style="font-size:13.5px; color:#8b949e; margin-top:4px; margin-bottom:0;">
+            Web sitemizdeki tüm faaliyet ve proje duyurularını Arduino, ESP32, akıllı okul panoları ve robotik projelere canlı aktarın.
+        </p>
+    </div>
+
+    <!-- Test Sonucu Bildirimi -->
+    {% if test_sonucu %}
+    <div style="background:{% if test_sonucu.basarili %}rgba(63,185,80,0.15); border:1px solid rgba(63,185,80,0.4); color:#56d364;{% else %}rgba(248,81,73,0.15); border:1px solid rgba(248,81,73,0.4); color:#ff7b72;{% endif %} padding:16px 20px; border-radius:10px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+        <i class="fa-solid {% if test_sonucu.basarili %}fa-circle-check{% else %}fa-circle-xmark{% endif %}" style="font-size:22px;"></i>
+        <div>
+            <div style="font-weight:700; font-size:14.5px;">{{ test_sonucu.mesaj }}</div>
+            <div style="font-size:12.5px; opacity:0.85;">Broker: <strong>{{ test_sonucu.broker }}</strong> | Topic: <code>{{ test_sonucu.topic }}</code></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+        
+        <!-- Sol Panel: MQTT Broker Seçimi ve Test Paneli -->
+        <div class="feed-card" style="padding:28px;">
+            <h3 style="font-size:17px; font-weight:700; color:#f0f6fc; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-server" style="color:#79c0ff;"></i> MQTT Broker Seçimi & Canlı Test
+            </h3>
+
+            <form method="post">
+                {% csrf_token %}
+                <div style="margin-bottom:20px;">
+                    <label class="gh-label">Aktif MQTT Broker / Sunucu *</label>
+                    <select name="broker" class="gh-input" style="background:#0d1117; color:#f0f6fc; font-weight:600; padding:12px 14px; font-size:14px;">
+                        {% for key, b in brokers.items %}
+                        <option value="{{ key }}" {% if secili_broker == key %}selected{% endif %}>
+                            {{ b.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label class="gh-label">Test Mesajı İçeriği</label>
+                    <input type="text" name="mesaj" class="gh-input" value="TSO Okul Arşiv Sistemi Canlı MQTT Bağlantı Testi OK!" placeholder="Gönderilecek test mesajı...">
+                </div>
+
+                <button type="submit" class="btn-gh-primary" style="width:100%; padding:12px; font-size:14px; justify-content:center;">
+                    <i class="fa-solid fa-paper-plane me-1"></i> Seçili Broker'a Canlı Test Sinyali Gönder
+                </button>
+            </form>
+
+            <div style="margin-top:24px; padding-top:20px; border-top:1px solid #30363d;">
+                <h4 style="font-size:13.5px; font-weight:700; color:#c9d1d9; margin-bottom:10px;">
+                    <i class="fa-solid fa-circle-info me-1" style="color:var(--accent);"></i> Otomatik Bildirim Sistemi:
+                </h4>
+                <p style="font-size:12.5px; color:#8b949e; line-height:1.6; margin:0;">
+                    Sitede yeni bir proje veya etkinlik onaylandığında, sistemimiz otomatik olarak <code>tso/okul/etkinlikler/yeni</code> topic'ine projenin adını, yılını ve başarısını JSON formatında fırlatır.
+                </p>
+            </div>
+        </div>
+
+        <!-- Sağ Panel: Bağlantı Bilgileri ve Cihaz Ayarları -->
+        <div class="feed-card" style="padding:28px;">
+            <h3 style="font-size:17px; font-weight:700; color:#f0f6fc; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-wifi" style="color:#56d364;"></i> IoT Cihaz / Arduino Bağlantı Parametreleri
+            </h3>
+
+            <div style="background:#0d1117; border-radius:10px; padding:18px; border:1px solid #30363d; margin-bottom:20px;">
+                <div style="margin-bottom:12px;">
+                    <span style="font-size:11px; font-weight:700; color:#8b949e; text-transform:uppercase;">Broker Host / Sunucu:</span>
+                    <div style="font-size:15px; font-weight:700; color:#58a6ff; font-family:monospace;">{{ broker_bilgi.host }}</div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <span style="font-size:11px; font-weight:700; color:#8b949e; text-transform:uppercase;">MQTT Port (TCP):</span>
+                        <div style="font-size:15px; font-weight:700; color:#f0f6fc; font-family:monospace;">{{ broker_bilgi.port }}</div>
+                    </div>
+                    <div>
+                        <span style="font-size:11px; font-weight:700; color:#8b949e; text-transform:uppercase;">WebSocket Port:</span>
+                        <div style="font-size:15px; font-weight:700; color:#f0f6fc; font-family:monospace;">{{ broker_bilgi.ws_port }}</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size:11px; font-weight:700; color:#8b949e; text-transform:uppercase;">Dinlenecek Topic (Konu):</span>
+                    <div style="font-size:15px; font-weight:700; color:#ffab70; font-family:monospace;">tso/okul/etkinlikler/#</div>
+                </div>
+            </div>
+
+            <h4 style="font-size:13.5px; font-weight:700; color:#c9d1d9; margin-bottom:8px;">
+                <i class="fa-solid fa-code me-1" style="color:#d2a8ff;"></i> Arduino / ESP32 Örnek Kod Parçası:
+            </h4>
+            <div style="background:#0d1117; border-radius:8px; padding:12px; font-family:monospace; font-size:11.5px; color:#8b949e; border:1px solid #30363d; overflow-x:auto;">
+                <span style="color:#ff7b72;">#include</span> <span style="color:#79c0ff;">&lt;PubSubClient.h&gt;</span><br>
+                <span style="color:#8b949e;">// Sunucuya bağlan</span><br>
+                client.setServer(<span style="color:#a5d6ff;">"{{ broker_bilgi.host }}"</span>, <span style="color:#79c0ff;">1883</span>);<br>
+                client.subscribe(<span style="color:#a5d6ff;">"tso/okul/etkinlikler/yeni"</span>);
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

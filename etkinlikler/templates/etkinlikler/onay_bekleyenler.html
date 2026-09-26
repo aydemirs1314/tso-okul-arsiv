@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Onay Bekleyen Projeler — TSO Arşiv{% endblock %}
+
+{% block content %}
+<div class="page-container fade-in">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+        <h2 style="font-size:22px; font-weight:700; color:var(--text);">
+            <i class="fa-solid fa-hourglass-half me-2" style="color:var(--accent-orange);"></i> Onay Bekleyen Faaliyetler
+            <span style="color:var(--text-muted); font-weight:500; font-size:15px; margin-left:8px;">({{ kayitlar.count }} bekleyen)</span>
+        </h2>
+        <a href="{% url 'dashboard' %}" class="btn-gh-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Panele Dön</a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div style="background:{% if message.tags == 'success' %}rgba(63,185,80,0.15); border:1px solid rgba(63,185,80,0.4); color:#56d364;{% else %}rgba(88,166,255,0.15); border:1px solid rgba(88,166,255,0.4); color:#79c0ff;{% endif %} padding:12px 18px; border-radius:8px; margin-bottom:16px; font-size:13.5px; font-weight:500;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% for kayit in kayitlar %}
+    <div class="feed-card" style="border-left: 4px solid var(--accent-orange);">
+        <div class="feed-header">
+            <div class="feed-avatar">{{ kayit.ekleyen.username|default:"A"|make_list|first|upper }}</div>
+            <div class="feed-user-info">
+                <div class="fu-name">{{ kayit.ekleyen.username|default:"Kullanıcı" }}</div>
+                <div class="fu-date"><i class="fa-regular fa-clock me-1"></i> {{ kayit.kayit_tarihi|date:"d F Y, H:i" }}</div>
+            </div>
+            <span style="background:rgba(240,136,62,0.18); color:#ffab70; border:1px solid rgba(240,136,62,0.4); font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:20px;">
+                <i class="fa-solid fa-clock me-1"></i> Onay Bekliyor
+            </span>
+        </div>
+
+        {% if kayit.fotograf %}
+        <img src="{{ kayit.fotograf.url }}" alt="{{ kayit.baslik }}" class="feed-img">
+        {% endif %}
+
+        <div class="feed-body">
+            <div class="feed-title">{{ kayit.baslik }}</div>
+            <div class="feed-desc">{{ kayit.icerik }}</div>
+        </div>
+
+        <div class="feed-meta">
+            <span><i class="fa-regular fa-calendar-check"></i> <strong>Yıl:</strong> {{ kayit.yil }}</span>
+            {% if kayit.yarisma_adi %}<span><i class="fa-solid fa-trophy"></i> <strong>Yarışma:</strong> {{ kayit.yarisma_adi }}</span>{% endif %}
+            <span><i class="fa-solid fa-chalkboard-user"></i> <strong>Öğretmenler:</strong> {{ kayit.ogretmenler }}</span>
+            <span><i class="fa-solid fa-user-group"></i> <strong>Öğrenciler:</strong> {{ kayit.ogrenciler }}</span>
+        </div>
+
+        <div class="feed-footer" style="gap:10px;">
+            <a href="{% url 'etkinlik_sil' kayit.pk %}" onclick="return confirm('Bu kaydı reddetmek ve silmek istediğinize emin misiniz?')" class="btn-gh-secondary" style="color:var(--accent-red); border-color:rgba(248,81,73,0.4);">
+                <i class="fa-solid fa-trash me-1"></i> Reddet ve Sil
+            </a>
+            <a href="{% url 'etkinlik_onayla' kayit.pk %}" class="btn-gh-primary">
+                <i class="fa-solid fa-check me-1"></i> Onayla ve Yayınla
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="feed-card">
+        <div class="empty-state">
+            <i class="fa-solid fa-circle-check" style="color:#56d364;"></i>
+            <p style="color:var(--text); font-size:15px; font-weight:600;">Şu anda onay bekleyen herhangi bir faaliyet bulunmuyor.</p>
+            <p style="color:var(--text-muted); font-size:13px;">Kullanıcılar yeni proje veya etkinlik eklediğinde burada listelenecektir.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

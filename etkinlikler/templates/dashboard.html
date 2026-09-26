@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% block nav_dash %}active{% endblock %}
+{% block title %}Ana Sayfa — TSO Arşiv{% endblock %}
+
+{% block content %}
+<div class="page-container fade-in">
+    <!-- Bildirim Mesajları -->
+    {% if messages %}
+    {% for message in messages %}
+    <div style="background:{% if message.tags == 'success' %}rgba(63,185,80,0.15); border:1px solid rgba(63,185,80,0.4); color:#56d364;{% elif message.tags == 'info' %}rgba(240,136,62,0.15); border:1px solid rgba(240,136,62,0.4); color:#ffab70;{% else %}rgba(88,166,255,0.15); border:1px solid rgba(88,166,255,0.4); color:#79c0ff;{% endif %} padding:12px 18px; border-radius:8px; margin-bottom:20px; font-size:13.5px; font-weight:500;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Yönetici İçin Onay Bekleyenler Uyarısı -->
+    {% if user.is_superuser and onay_bekleyen_sayisi > 0 %}
+    <div style="background:rgba(240,136,62,0.12); border:1px solid rgba(240,136,62,0.4); border-radius:10px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; background:rgba(240,136,62,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#ffab70; font-size:18px;">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <div>
+                <div style="font-size:15px; font-weight:700; color:#f0f6fc;">Onay Bekleyen {{ onay_bekleyen_sayisi }} Adet Yeni Faaliyet Var!</div>
+                <div style="font-size:12.5px; color:#c9d1d9;">Kullanıcılar tarafından sisteme yeni faaliyetler eklendi. Yayına almak için onaylayın.</div>
+            </div>
+        </div>
+        <a href="{% url 'onay_bekleyenler' %}" class="btn-gh-primary" style="background:#f0883e; border-color:#d29922;">
+            <i class="fa-solid fa-list-check me-1"></i> İncelenmeyi Bekleyenler ({{ onay_bekleyen_sayisi }})
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Arama ve Karşılama Alanı (Hero Search) -->
+    <div class="feed-card" style="padding:32px; background: linear-gradient(135deg, #161b22 0%, #1a2230 100%); margin-bottom:24px; text-align:center;">
+        <h1 style="font-size:26px; font-weight:800; color:#f0f6fc; margin-bottom:8px;">
+            <i class="fa-solid fa-graduation-cap me-2" style="color:var(--accent);"></i> TSO Okul Faaliyet ve Proje Arşivi
+        </h1>
+        <p style="font-size:14px; color:#c9d1d9; max-width:600px; margin:0 auto 24px;">
+            Okulumuza ait tüm projeleri, bilimsel etkinlikleri, yarışmaları, gezileri ve sportif müsabakaları yıllara göre arayın ve inceleyin.
+        </p>
+
+        <!-- Arama Çubuğu -->
+        <form method="get" action="{% url 'etkinlik_listesi' %}" style="max-width:640px; margin:0 auto; display:flex; gap:10px;">
+            <div style="position:relative; flex:1;">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#8b949e; font-size:15px;"></i>
+                <input type="text" name="q" class="gh-input" style="padding:12px 14px 12px 44px; font-size:14.5px; border-radius:8px; background:#0d1117;" placeholder="Proje adı, öğretmen, öğrenci, yarışma, yıl veya kelime arayın...">
+            </div>
+            <button type="submit" class="btn-gh-primary" style="padding:12px 24px; font-size:14px; white-space:nowrap;">
+                <i class="fa-solid fa-search me-1"></i> Arşivde Ara
+            </button>
+        </form>
+    </div>
+
+    <!-- İstatistik Kartları (Tıklanabilir Kategori Butonları) -->
+    <div class="stat-row">
+        <a href="{% url 'etkinlik_listesi' %}?tur=proje" class="stat-pill" style="text-decoration:none;">
+            <div class="sp-icon"><i class="fa-solid fa-code"></i></div>
+            <div>
+                <div class="sp-value">{{ toplam_proje }}</div>
+                <div class="sp-label">Projeler →</div>
+            </div>
+        </a>
+        <a href="{% url 'etkinlik_listesi' %}?tur=etkinlik" class="stat-pill" style="text-decoration:none;">
+            <div class="sp-icon"><i class="fa-solid fa-calendar-check"></i></div>
+            <div>
+                <div class="sp-value">{{ toplam_etkinlik }}</div>
+                <div class="sp-label">Etkinlikler →</div>
+            </div>
+        </a>
+        <a href="{% url 'etkinlik_listesi' %}?tur=spor" class="stat-pill" style="text-decoration:none;">
+            <div class="sp-icon"><i class="fa-solid fa-trophy"></i></div>
+            <div>
+                <div class="sp-value">{{ toplam_spor }}</div>
+                <div class="sp-label">Sportif Başarılar →</div>
+            </div>
+        </a>
+        <a href="{% url 'etkinlik_listesi' %}" class="stat-pill" style="text-decoration:none;">
+            <div class="sp-icon"><i class="fa-solid fa-database"></i></div>
+            <div>
+                <div class="sp-value">{{ toplam_kayit }}</div>
+                <div class="sp-label">Tüm Arşivi Gör →</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Hızlı Kategori ve Yıl Seçimi -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+        <!-- Kategorilere Göre Hızlı Erişim -->
+        <div class="side-panel">
+            <div class="sp-header">
+                <i class="fa-solid fa-layer-group"></i> Kategorilere Göre Arşiv
+            </div>
+            <div class="sp-body" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <a href="{% url 'etkinlik_listesi' %}?tur=proje" class="btn-gh-secondary" style="padding:14px; text-align:left; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-code" style="color:#79c0ff; font-size:18px;"></i>
+                    <div>
+                        <div style="font-weight:700; color:#f0f6fc;">Projeler</div>
+                        <div style="font-size:11px; color:#8b949e;">{{ toplam_proje }} Faaliyet</div>
+                    </div>
+                </a>
+                <a href="{% url 'etkinlik_listesi' %}?tur=etkinlik" class="btn-gh-secondary" style="padding:14px; text-align:left; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-calendar-check" style="color:#56d364; font-size:18px;"></i>
+                    <div>
+                        <div style="font-weight:700; color:#f0f6fc;">Etkinlikler</div>
+                        <div style="font-size:11px; color:#8b949e;">{{ toplam_etkinlik }} Faaliyet</div>
+                    </div>
+                </a>
+                <a href="{% url 'etkinlik_listesi' %}?tur=spor" class="btn-gh-secondary" style="padding:14px; text-align:left; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-trophy" style="color:#ffab70; font-size:18px;"></i>
+                    <div>
+                        <div style="font-weight:700; color:#f0f6fc;">Spor Müsabakaları</div>
+                        <div style="font-size:11px; color:#8b949e;">{{ toplam_spor }} Faaliyet</div>
+                    </div>
+                </a>
+                <a href="{% url 'etkinlik_listesi' %}?tur=gezi" class="btn-gh-secondary" style="padding:14px; text-align:left; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-map-location-dot" style="color:#d2a8ff; font-size:18px;"></i>
+                    <div>
+                        <div style="font-weight:700; color:#f0f6fc;">Okul Gezileri</div>
+                        <div style="font-size:11px; color:#8b949e;">{{ toplam_gezi }} Faaliyet</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Yıllara Göre Hızlı Erişim -->
+        <div class="side-panel">
+            <div class="sp-header">
+                <i class="fa-regular fa-calendar-days"></i> Yıllara Göre Arşiv
+            </div>
+            <div class="sp-body" style="display:flex; flex-wrap:wrap; gap:8px;">
+                {% for y in mevcut_yillar %}
+                <a href="{% url 'etkinlik_listesi' %}?yil={{ y }}" class="btn-gh-secondary" style="padding:10px 16px; font-weight:600; font-size:13.5px;">
+                    <i class="fa-regular fa-calendar me-1" style="color:var(--accent);"></i> {{ y }} Yılı
+                </a>
+                {% empty %}
+                <p style="font-size:13px; color:#8b949e; margin:0;">Henüz arşivlenmiş yıl bulunmuyor.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- İstatistik Grafikleri -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <!-- Kategori Dağılımı Grafiği -->
+        <div class="side-panel">
+            <div class="sp-header"><i class="fa-solid fa-chart-pie"></i> Faaliyet Türü Dağılımı</div>
+            <div class="chart-box" style="display:flex; align-items:center; justify-content:center; padding:24px;">
+                <canvas id="turChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Yıllık Kayıt Grafiği -->
+        <div class="side-panel">
+            <div class="sp-header"><i class="fa-solid fa-chart-column"></i> Yıllara Göre Faaliyet Sayıları</div>
+            <div class="chart-box" style="padding:24px;">
+                <canvas id="yilChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Tür dağılım grafiği
+const turData = {{ tur_verileri|safe }};
+if (turData && turData.length > 0) {
+    new Chart(document.getElementById('turChart'), {
+        type: 'doughnut',
+        data: {
+            labels: turData.map(d => d.tur),
+            datasets: [{
+                data: turData.map(d => d.sayi),
+                backgroundColor: ['#58a6ff','#3fb950','#bc8cff','#f0883e','#8b949e'],
+                borderColor: '#161b22',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#c9d1d9', padding: 14, font: { family: 'Inter', size: 12, weight: '500' } }
+                }
+            }
+        }
+    });
+}
+
+// Yıl grafiği
+const yilData = {{ yil_verileri|safe }};
+if (yilData && yilData.length > 0) {
+    new Chart(document.getElementById('yilChart'), {
+        type: 'bar',
+        data: {
+            labels: yilData.map(d => d.yil),
+            datasets: [{
+                data: yilData.map(d => d.sayi),
+                backgroundColor: 'rgba(88,166,255,0.45)',
+                borderColor: '#58a6ff',
+                borderWidth: 1.5,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(240,246,252,0.06)' }, ticks: { color: '#c9d1d9', font: { family: 'Inter', size: 12 } } },
+                y: { grid: { color: 'rgba(240,246,252,0.06)' }, ticks: { color: '#c9d1d9', stepSize: 1, font: { family: 'Inter', size: 12 } }, beginAtZero: true }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

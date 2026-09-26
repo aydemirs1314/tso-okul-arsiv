@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Yeni Kullanıcı — TSO Arşiv{% endblock %}
+
+{% block content %}
+<div class="page-container fade-in" style="max-width:540px; margin:0 auto;">
+    <div style="margin-bottom:20px;">
+        <a href="{% url 'kullanici_listesi' %}" class="btn-gh-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Kullanıcı Listesine Dön</a>
+    </div>
+
+    <div class="feed-card" style="padding:28px;">
+        <h3 style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">
+            <i class="fa-solid fa-user-plus me-2" style="color:#56d364;"></i> Yeni Kullanıcı Hesabı Oluştur
+        </h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:24px;">Sisteme giriş yapıp faaliyet ekleyebilecek yeni bir öğretmen/personel hesabı tanımlayın.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom:18px;">
+                <label class="gh-label">Kullanıcı Adı *</label>
+                <input type="text" name="username" class="gh-input" placeholder="Örn: ahmet.yilmaz" required value="{{ form.username.value|default:'' }}">
+                {% if form.username.errors %}
+                <p style="color:var(--accent-red); font-size:12.5px; margin-top:5px; font-weight:500;">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div style="margin-bottom:18px;">
+                <label class="gh-label">Şifre *</label>
+                <input type="password" name="password1" class="gh-input" placeholder="En az 8 karakterli güçlü bir şifre" required>
+                {% if form.password1.errors %}
+                <p style="color:var(--accent-red); font-size:12.5px; margin-top:5px; font-weight:500;">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div style="margin-bottom:24px;">
+                <label class="gh-label">Şifre Tekrar *</label>
+                <input type="password" name="password2" class="gh-input" placeholder="Belirlediğiniz şifreyi tekrar girin" required>
+                {% if form.password2.errors %}
+                <p style="color:var(--accent-red); font-size:12.5px; margin-top:5px; font-weight:500;">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div style="display:flex; gap:12px; padding-top:20px; border-top:1px solid var(--border);">
+                <button type="submit" class="btn-gh-primary" style="padding:10px 24px; font-size:14px;">
+                    <i class="fa-solid fa-check me-1"></i> Kullanıcıyı Oluştur
+                </button>
+                <a href="{% url 'kullanici_listesi' %}" class="btn-gh-secondary" style="padding:10px 20px;">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

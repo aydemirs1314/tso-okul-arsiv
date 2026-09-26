@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Yeni Faaliyet / Proje Ekle — TSO Arşiv{% endblock %}
+
+{% block content %}
+<div class="page-container fade-in" style="max-width:760px; margin:0 auto;">
+    <div style="margin-bottom:20px;">
+        <a href="{% url 'etkinlik_listesi' %}" class="btn-gh-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Arşive Dön</a>
+    </div>
+
+    <div class="feed-card" style="padding:32px;">
+        <div style="margin-bottom:24px; padding-bottom:18px; border-bottom:1px solid #30363d;">
+            <h2 style="font-size:22px; font-weight:800; color:#f0f6fc; margin-bottom:6px;">
+                <i class="fa-solid fa-circle-plus me-2" style="color:#56d364;"></i> Yeni Faaliyet / Proje Kaydı
+            </h2>
+            <p style="font-size:13.5px; color:#8b949e; margin:0;">
+                Okula ait proje, yarışma, gezi, bilimsel etkinlik veya sportif başarı bilgilerini girin.
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+                
+                <!-- Faaliyet / Proje Adı -->
+                <div style="grid-column:span 2;">
+                    <label class="gh-label">Faaliyet / Proje Adı *</label>
+                    <input type="text" name="baslik" value="{{ form.baslik.value|default:'' }}" class="gh-input" placeholder="Örn: TÜBİTAK 4006 Bilim Fuarı / Robotik Kodlama Projesi" required>
+                    {% if form.baslik.errors %}<p style="color:var(--accent-red); font-size:12px; margin-top:4px;">{{ form.baslik.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Türü -->
+                <div>
+                    <label class="gh-label">Faaliyet Türü *</label>
+                    <select name="tur" class="gh-input" style="background:#0d1117; color:#f0f6fc;">
+                        {% for val, label in form.tur.field.choices %}
+                        <option value="{{ val }}" {% if form.tur.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Yapıldığı Yıl -->
+                <div>
+                    <label class="gh-label">Yapıldığı Yıl *</label>
+                    <input type="number" name="yil" value="{{ form.yil.value|default:'2026' }}" class="gh-input" placeholder="Örn: 2026" required>
+                    {% if form.yil.errors %}<p style="color:var(--accent-red); font-size:12px; margin-top:4px;">{{ form.yil.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Başvurulan Yarışma -->
+                <div>
+                    <label class="gh-label">Başvurulan Yarışma / Organizasyon</label>
+                    <input type="text" name="yarisma_adi" value="{{ form.yarisma_adi.value|default:'' }}" class="gh-input" placeholder="Örn: TEKNOFEST, TÜBİTAK, MEB Robot">
+                </div>
+
+                <!-- Elde Edilen Başarı / Derece -->
+                <div>
+                    <label class="gh-label">Elde Edilen Başarı / Derece (Varsa)</label>
+                    <input type="text" name="basari" value="{{ form.basari.value|default:'' }}" class="gh-input" placeholder="Örn: Türkiye 1.si, İl İkinciliği, Mansiyon Ödülü">
+                </div>
+
+                <!-- Hazırlayan Öğretmenler -->
+                <div style="grid-column:span 2;">
+                    <label class="gh-label">Hazırlayan / Danışman Öğretmenler *</label>
+                    <textarea name="ogretmenler" rows="2" class="gh-input" placeholder="Öğretmenlerin adlarını yazınız (örn: Ahmet Yılmaz, Ayşe Demir)" required>{{ form.ogretmenler.value|default:'' }}</textarea>
+                </div>
+
+                <!-- Hazırlayan Öğrenciler -->
+                <div style="grid-column:span 2;">
+                    <label class="gh-label">Görevli / Katılımcı Öğrenciler *</label>
+                    <textarea name="ogrenciler" rows="2" class="gh-input" placeholder="Öğrencilerin ad ve sınıflarını yazınız (örn: Mehmet Kaya 11-A, Zeynep Şen 10-B)" required>{{ form.ogrenciler.value|default:'' }}</textarea>
+                </div>
+
+                <!-- İçerik ve Detaylar -->
+                <div style="grid-column:span 2;">
+                    <label class="gh-label">Faaliyetin İçeriği ve Detaylı Açıklaması *</label>
+                    <textarea name="icerik" rows="5" class="gh-input" placeholder="Projenin amacı, yapılan çalışmalar ve elde edilen kazanımlar hakkında detaylı bilgi giriniz..." required>{{ form.icerik.value|default:'' }}</textarea>
+                </div>
+
+                <!-- Birden Fazla Fotoğraf Yükleme Alanı -->
+                <div style="grid-column:span 2; background:#0d1117; border:1px dashed #30363d; border-radius:8px; padding:20px;">
+                    <label class="gh-label" style="margin-bottom:4px;">
+                        <i class="fa-solid fa-images me-1" style="color:#79c0ff;"></i> Fotoğraflar / Görseller (Birden Fazla Seçilebilir)
+                    </label>
+                    <p style="font-size:12.5px; color:#8b949e; margin-bottom:12px;">
+                        Klavyeden <strong>CTRL</strong> veya <strong>Shift</strong> tuşuna basılı tutarak birden fazla fotoğraf seçip tek seferde yükleyebilirsiniz.
+                    </p>
+                    <input type="file" name="fotograflar" multiple accept="image/*" class="gh-input" style="padding:10px; color:#c9d1d9; border-color:#30363d;">
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; padding-top:20px; border-top:1px solid #30363d;">
+                <a href="{% url 'etkinlik_listesi' %}" class="btn-gh-secondary" style="padding:10px 20px;">İptal</a>
+                
+                <button type="submit" class="btn-gh-primary" style="padding:12px 32px; font-size:14.5px;">
+                    <i class="fa-solid fa-check me-1"></i> Faaliyeti Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

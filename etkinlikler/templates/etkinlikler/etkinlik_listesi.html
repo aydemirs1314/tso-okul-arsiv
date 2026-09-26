@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% block nav_list %}active{% endblock %}
+{% block title %}Arşiv Listesi — TSO Arşiv{% endblock %}
+
+{% block content %}
+<div class="page-container fade-in">
+    <!-- Bildirim Mesajları -->
+    {% if messages %}
+    {% for message in messages %}
+    <div style="background:{% if message.tags == 'success' %}rgba(63,185,80,0.15); border:1px solid rgba(63,185,80,0.4); color:#56d364;{% elif message.tags == 'info' %}rgba(240,136,62,0.15); border:1px solid rgba(240,136,62,0.4); color:#ffab70;{% else %}rgba(88,166,255,0.15); border:1px solid rgba(88,166,255,0.4); color:#79c0ff;{% endif %} padding:12px 18px; border-radius:8px; margin-bottom:20px; font-size:13.5px; font-weight:500;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Başlık ve Yeni Ekle -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h2 style="font-size:24px; font-weight:800; color:#f0f6fc; margin:0;">
+                <i class="fa-solid fa-folder-tree me-2" style="color:var(--accent);"></i> Faaliyet ve Proje Arşivi
+            </h2>
+            <p style="font-size:13.5px; color:#8b949e; margin-top:4px; margin-bottom:0;">
+                Yıllara göre sıralı liste. Detayları görmek için projenin adına tıklayabilirsiniz.
+            </p>
+        </div>
+        <a href="{% url 'etkinlik_ekle' %}" class="nav-new-btn"><i class="fa-solid fa-plus"></i> Yeni Faaliyet Ekle</a>
+    </div>
+
+    <!-- Arama ve Filtreleme Kutusu -->
+    <div class="feed-card" style="padding:18px 20px; margin-bottom:24px; background:#161b22;">
+        <form method="get" action="{% url 'etkinlik_listesi' %}" style="display:flex; gap:12px; flex-wrap:wrap;">
+            <!-- Arama Kutusu -->
+            <div style="flex:1; min-width:240px; position:relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#8b949e; font-size:14px;"></i>
+                <input type="text" name="q" value="{{ q }}" class="gh-input" style="padding:10px 14px 10px 38px;" placeholder="Kelime, öğretmen, öğrenci, yarışma veya başarı ara...">
+            </div>
+
+            <!-- Kategori Filtresi -->
+            <div style="min-width:160px;">
+                <select name="tur" class="gh-input" style="padding:10px 14px; background:#0d1117; color:#f0f6fc;">
+                    <option value="">Tüm Kategoriler</option>
+                    <option value="proje" {% if secili_tur == 'proje' %}selected{% endif %}>Projeler</option>
+                    <option value="etkinlik" {% if secili_tur == 'etkinlik' %}selected{% endif %}>Etkinlikler</option>
+                    <option value="spor" {% if secili_tur == 'spor' %}selected{% endif %}>Sportif Müsabakalar</option>
+                    <option value="gezi" {% if secili_tur == 'gezi' %}selected{% endif %}>Geziler</option>
+                    <option value="diger" {% if secili_tur == 'diger' %}selected{% endif %}>Diğer</option>
+                </select>
+            </div>
+
+            <!-- Yıl Filtresi -->
+            <div style="min-width:140px;">
+                <select name="yil" class="gh-input" style="padding:10px 14px; background:#0d1117; color:#f0f6fc;">
+                    <option value="">Tüm Yıllar</option>
+                    {% for y in tum_yillar %}
+                    <option value="{{ y }}" {% if secili_yil == y %}selected{% endif %}>{{ y }} Yılı</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn-gh-primary" style="padding:10px 20px;">
+                <i class="fa-solid fa-filter me-1"></i> Filtrele
+            </button>
+
+            {% if q or secili_tur or secili_yil %}
+            <a href="{% url 'etkinlik_listesi' %}" class="btn-gh-secondary" style="padding:10px 16px;">
+                <i class="fa-solid fa-xmark me-1"></i> Temizle
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Sonuç Sayısı ve Aktif Filtre Bilgisi -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-size:13px; color:#8b949e;">
+        <div>
+            Toplam <strong>{{ toplam_sonuc }}</strong> faaliyet listeleniyor
+            {% if q %} — "<em>{{ q }}</em>" araması için{% endif %}
+            {% if secili_tur %} — Kategori: <strong>{{ secili_tur|title }}</strong>{% endif %}
+            {% if secili_yil %} — Yıl: <strong>{{ secili_yil }}</strong>{% endif %}
+        </div>
+        <div style="font-size:12px; color:#6e7681;">
+            <i class="fa-solid fa-arrow-down-wide-short me-1"></i> Yıla göre yeniden eskiye sıralı
+        </div>
+    </div>
+
+    <!-- Yıllara Göre Listeleme (Kompakt Liste) -->
+    <div class="feed-card" style="overflow:hidden;">
+        <table class="data-table" style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th style="padding:14px 18px; width:90px; text-align:center;">Yıl</th>
+                    <th style="padding:14px 18px; width:110px;">Tür</th>
+                    <th style="padding:14px 18px;">Faaliyet / Proje Adı</th>
+                    <th style="padding:14px 18px;">Hazırlayanlar & Yarışma</th>
+                    <th style="padding:14px 18px;">Başarı / Derece</th>
+                    <th style="padding:14px 18px; text-align:right; width:160px;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kayit in kayitlar %}
+                <tr style="border-bottom:1px solid #21262d; transition:background 0.15s;">
+                    <!-- Yıl -->
+                    <td style="padding:16px 18px; text-align:center;">
+                        <span style="font-size:14px; font-weight:800; color:#58a6ff; background:rgba(88,166,255,0.12); padding:4px 10px; border-radius:6px; border:1px solid rgba(88,166,255,0.25);">
+                            {{ kayit.yil }}
+                        </span>
+                    </td>
+
+                    <!-- Tür -->
+                    <td style="padding:16px 18px;">
+                        {% if kayit.tur == 'proje' %}<span class="feed-type-badge ftb-proje">Proje</span>
+                        {% elif kayit.tur == 'etkinlik' %}<span class="feed-type-badge ftb-etkinlik">Etkinlik</span>
+                        {% elif kayit.tur == 'gezi' %}<span class="feed-type-badge ftb-gezi">Gezi</span>
+                        {% elif kayit.tur == 'spor' %}<span class="feed-type-badge ftb-spor">Spor</span>
+                        {% else %}<span class="feed-type-badge ftb-diger">Diğer</span>{% endif %}
+
+                        {% if not kayit.onaylandi %}
+                        <div style="margin-top:4px;">
+                            <span style="background:rgba(240,136,62,0.15); color:#ffab70; font-size:10px; font-weight:600; padding:2px 6px; border-radius:10px; border:1px solid rgba(240,136,62,0.3);">
+                                Onay Bekliyor
+                            </span>
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Proje Adı (Tıklanınca Detaya Gider) -->
+                    <td style="padding:16px 18px;">
+                        <a href="{% url 'etkinlik_detay' kayit.pk %}" style="font-size:15px; font-weight:700; color:#f0f6fc; display:block; margin-bottom:4px;">
+                            {{ kayit.baslik }}
+                        </a>
+                        <div style="font-size:12px; color:#8b949e;">
+                            <i class="fa-regular fa-clock me-1"></i> {{ kayit.kayit_tarihi|date:"d.m.Y" }} tarihinde eklendi
+                            {% if kayit.fotograflar.count > 0 %}
+                            <span style="margin-left:8px; color:#79c0ff;"><i class="fa-solid fa-images me-1"></i> {{ kayit.fotograflar.count }} Fotoğraf</span>
+                            {% elif kayit.fotograf %}
+                            <span style="margin-left:8px; color:#79c0ff;"><i class="fa-solid fa-image me-1"></i> 1 Fotoğraf</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- Hazırlayanlar & Yarışma -->
+                    <td style="padding:16px 18px; font-size:13px; color:#c9d1d9;">
+                        {% if kayit.yarisma_adi %}
+                        <div style="font-weight:600; color:#d2a8ff; margin-bottom:2px;">
+                            <i class="fa-solid fa-trophy me-1"></i> {{ kayit.yarisma_adi }}
+                        </div>
+                        {% endif %}
+                        <div style="font-size:12px; color:#8b949e;">
+                            <i class="fa-solid fa-chalkboard-user me-1"></i> {{ kayit.ogretmenler|truncatechars:30 }}
+                        </div>
+                    </td>
+
+                    <!-- Başarı / Derece -->
+                    <td style="padding:16px 18px;">
+                        {% if kayit.basari %}
+                        <span style="background:rgba(210,153,34,0.18); color:#e3b341; border:1px solid rgba(210,153,34,0.4); font-size:12px; font-weight:600; padding:4px 10px; border-radius:6px; display:inline-block;">
+                            <i class="fa-solid fa-medal me-1"></i> {{ kayit.basari|truncatechars:25 }}
+                        </span>
+                        {% else %}
+                        <span style="color:#6e7681; font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- İşlemler -->
+                    <td style="padding:16px 18px; text-align:right;">
+                        <div style="display:flex; justify-content:flex-end; gap:6px;">
+                            <a href="{% url 'etkinlik_detay' kayit.pk %}" class="btn-gh-secondary" style="padding:6px 12px; font-size:12px;" title="Detayları İncele">
+                                <i class="fa-solid fa-eye me-1"></i> İncele
+                            </a>
+
+                            {% if user.is_superuser or kayit.ekleyen == user %}
+                            <a href="{% url 'etkinlik_sil' kayit.pk %}" onclick="return confirm('Bu faaliyeti silmek istediğinize emin misiniz?')" class="btn-gh-secondary" style="padding:6px 10px; color:#ff7b72; border-color:rgba(248,81,73,0.3);" title="Projeyi Sil / Kaldır">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding:48px 20px; text-align:center;">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-folder-open" style="font-size:42px; margin-bottom:12px;"></i>
+                            <p style="font-size:15px; color:#f0f6fc; font-weight:600; margin-bottom:6px;">Aradığınız kriterlere uygun faaliyet bulunamadı.</p>
+                            <p style="font-size:13px; color:#8b949e;">Farklı bir arama kelimesi deneyebilir veya <a href="{% url 'etkinlik_ekle' %}" style="color:var(--accent); font-weight:600;">yeni bir kayıt ekleyebilirsiniz.</a></p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
