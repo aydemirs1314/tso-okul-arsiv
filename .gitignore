@@ -1,0 +1,8 @@
+venv/
+mingit/
+*.sqlite3
+__pycache__/
+*.pyc
+.gemini/
+*.log
+tunnel_log.txt

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: tso-okul-arsiv
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate"
+    startCommand: "gunicorn okul_arsiv.wsgi:application"
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8

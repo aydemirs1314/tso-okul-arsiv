@@ -1,0 +1,6 @@
+django>=5.0
+pillow
+paho-mqtt
+django-jazzmin
+gunicorn
+whitenoise
